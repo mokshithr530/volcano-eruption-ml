@@ -60,7 +60,7 @@ def report_pdf(results):
         "The held-out ROC-AUC is useful because the test period has a different event-rate distribution from training. Logistic Regression reaches ROC-AUC {:.3f}, while Random Forest reaches {:.3f}; both outperform the 0.5 baseline when ranking eruptive cases. We select thresholds on the development period rather than tuning on the test set. The Random Forest threshold is {:.2f}, giving test accuracy {:.3f}, F1 {:.3f}, and Cohen's kappa {:.3f}.".format(lr["roc_auc"], rf["roc_auc"], rf["threshold"], rf["accuracy"], rf["f1"], rf["kappa"]), styles["BodySmall"]), PageBreak(), Paragraph("Interpretation and limitations", styles["H"]), Paragraph(
         "Earthquake catalog features contain information associated with Kilauea's eruptive state, especially in the ranking measured by ROC-AUC. Development-set threshold selection improves the Random Forest's balance between false alarms and missed eruptive events, but the result remains sensitive to the time period and label definition. A stronger follow-up should use event-based validation and add waveform/tremor, GPS deformation, gas, and station-quality features. The present model predicts contemporaneous status rather than the time until a future eruption, so it supports a useful educational demonstration but not public safety decisions.", styles["BodySmall"]),
         Image(str(OUT / "roc_curves.png"), width=3.25*inch, height=2.3*inch), Spacer(1, 3), Paragraph("Figure: ROC curves on the held-out chronological test period.", styles["Sub"])]
-    story += [Spacer(1, 4), Paragraph("Sources: supplied CS229 report and public reference repository bmullet/PEEVED; ANSS/WOVOdat earthquake catalog; Hawaii Center for Volcanology Kilauea eruption chronology.", styles["BodySmall"])]
+    story += [Spacer(1, 4), Paragraph("Sources: supplied CS229 report and public reference repository bmullet/PEEVED; ANSS/WOVOdat earthquake catalog; Hawaii Center for Volcanology Kilauea eruption chronology. Project repository: https://github.com/mokshithr530/volcano-eruption-ml", styles["BodySmall"])]
     doc.build(story)
     return path
 
@@ -128,6 +128,7 @@ def slides_pptx(results):
     add_text(s, "The catalog contains useful information about contemporaneous eruptive status, but this experiment does not forecast an eruption days in advance.", .9, 1.7, 11, .8, 25, navy, True)
     add_text(s, "Next steps", .9, 3.25, 2.4, .35, 21, orange, True)
     add_text(s, "Calibrate thresholds on a development period\nUse blocked/event-based validation\nAdd waveform, tremor, GPS, and gas-emission features", .9, 3.75, 11, 1.5, 23, grey)
+    add_text(s, "Repository: github.com/mokshithr530/volcano-eruption-ml", .9, 6.25, 11, .35, 14, orange, False, PP_ALIGN.CENTER)
     path = ROOT / "slides" / "volcano_eruption_prediction_review.pptx"; prs.save(path); return path
 
 
