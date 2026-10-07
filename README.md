@@ -1,6 +1,8 @@
 # Predicting Eruptive Events at Volcanoes from Earthquake Data
 
-Mini-project for UE24CS352A Machine Learning.
+Mini-project for UE24CS352A Machine Learning, Section E.
+
+Team: Muhammad Uzair (PES2UG24CS287) and Mokshithreddy Nallaballe (PES2UG24CS284).
 
 This project studies whether earthquake-catalog features can identify whether Kīlauea's Pu'u 'O'o system was erupting when an earthquake occurred. It uses the public earthquake catalog and eruption chronology distributed with the reference project.
 

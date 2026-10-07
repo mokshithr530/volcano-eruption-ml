@@ -36,7 +36,8 @@ def report_pdf(results):
     styles.add(ParagraphStyle(name="BodySmall", parent=styles["BodyText"], fontSize=8.5, leading=10.5,
                               spaceAfter=4))
     story = [Paragraph("Predicting Eruptive Events at Volcanoes from Earthquake Data", styles["TitleCenter"]),
-             Paragraph("UE24CS352A Machine Learning Mini-Project", styles["Sub"]), Spacer(1, 8)]
+             Paragraph("UE24CS352A Machine Learning Mini-Project - Section E", styles["Sub"]),
+             Paragraph("Muhammad Uzair (PES2UG24CS287) | Mokshithreddy Nallaballe (PES2UG24CS284)", styles["Sub"]), Spacer(1, 8)]
     story += [Paragraph("Problem and objective", styles["H"]), Paragraph(
         "Volcanic unrest often changes the local earthquake pattern. This project asks whether an earthquake catalog can identify the eruptive state of Kilauea's Pu'u 'O'o system. We frame the task as contemporaneous binary classification: for each catalog earthquake, predict whether it occurred during a documented eruptive interval. This is a retrospective study and should not be read as an operational warning system.", styles["BodySmall"])]
     story += [Paragraph("Dataset and target construction", styles["H"]), Paragraph(
@@ -87,7 +88,8 @@ def slides_pptx(results):
         return s
     s = prs.slides.add_slide(blank); s.background.fill.solid(); s.background.fill.fore_color.rgb = RGBColor(*navy)
     add_text(s, "Predicting Eruptive Events\nfrom Earthquake Data", .7, 1.55, 11.8, 1.6, 38, (255,255,255), True, PP_ALIGN.CENTER)
-    add_text(s, "UE24CS352A Machine Learning Mini-Project", .7, 3.45, 11.8, .45, 19, (226,233,239), False, PP_ALIGN.CENTER)
+    add_text(s, "UE24CS352A Machine Learning Mini-Project - Section E", .7, 3.35, 11.8, .45, 19, (226,233,239), False, PP_ALIGN.CENTER)
+    add_text(s, "Muhammad Uzair  |  Mokshithreddy Nallaballe", .7, 3.82, 11.8, .35, 15, (226,233,239), False, PP_ALIGN.CENTER)
     add_text(s, "Kilauea Pu'u 'O'o eruption-status classification", .7, 4.05, 11.8, .4, 17, (248,174,95), False, PP_ALIGN.CENTER)
     s = base("Research question", 2)
     add_text(s, "Can earthquake-catalog features identify whether Kilauea was erupting when an earthquake occurred?", .85, 1.45, 11.4, 1.0, 30, navy, True, PP_ALIGN.CENTER)

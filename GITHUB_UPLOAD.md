@@ -1,5 +1,7 @@
 # Private GitHub upload
 
+Team: Muhammad Uzair (PES2UG24CS287) and Mokshithreddy Nallaballe (PES2UG24CS284), Section E.
+
 The local repository has no remote configured. Create an empty **private** repository on GitHub, then run these commands from this directory:
 
 ```bash
@@ -9,7 +11,7 @@ git branch -M main
 git push -u origin main
 ```
 
-After the push, open **Settings -> Collaborators** and add the faculty member and assigned TA accounts. Do not commit `.venv/`, passwords, GitHub tokens, or private student information. Add team names and USNs only after confirming the exact spelling with both members.
+After the push, open **Settings -> Collaborators** and add the faculty member and assigned TA accounts. Do not commit `.venv/`, passwords, or GitHub tokens.
 
 The project can be rerun from a fresh clone with:
 
