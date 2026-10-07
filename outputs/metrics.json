@@ -1,0 +1,85 @@
+{
+  "dataset": {
+    "rows": 6485,
+    "positive_rate": 0.6894371626831148,
+    "train_rows": 4539,
+    "test_rows": 973,
+    "train_end": "1985-04-28 06:42:24.800000",
+    "development_end": "1986-02-03 22:38:54.400000"
+  },
+  "features": [
+    "latitude",
+    "longitude",
+    "depth",
+    "magnitude",
+    "distance",
+    "rate_1d",
+    "maxmag_1d",
+    "rate_7d",
+    "maxmag_7d",
+    "rate_30d",
+    "maxmag_30d"
+  ],
+  "models": [
+    {
+      "model": "majority_baseline",
+      "accuracy": 0.5498458376156218,
+      "precision": 0.5498458376156218,
+      "recall": 1.0,
+      "f1": 0.7095490716180372,
+      "kappa": 0.0,
+      "roc_auc": 0.5,
+      "confusion_matrix": [
+        [
+          0,
+          438
+        ],
+        [
+          0,
+          535
+        ]
+      ],
+      "classification_report": "              precision    recall  f1-score   support\n\n           0       0.00      0.00      0.00       438\n           1       0.55      1.00      0.71       535\n\n    accuracy                           0.55       973\n   macro avg       0.27      0.50      0.35       973\nweighted avg       0.30      0.55      0.39       973\n"
+    },
+    {
+      "model": "logistic_regression",
+      "accuracy": 0.4779033915724563,
+      "precision": 1.0,
+      "recall": 0.05046728971962617,
+      "f1": 0.09608540925266904,
+      "kappa": 0.04566587377591047,
+      "roc_auc": 0.9607092561771859,
+      "confusion_matrix": [
+        [
+          438,
+          0
+        ],
+        [
+          508,
+          27
+        ]
+      ],
+      "classification_report": "              precision    recall  f1-score   support\n\n           0       0.46      1.00      0.63       438\n           1       1.00      0.05      0.10       535\n\n    accuracy                           0.48       973\n   macro avg       0.73      0.53      0.36       973\nweighted avg       0.76      0.48      0.34       973\n"
+    },
+    {
+      "model": "random_forest",
+      "accuracy": 0.5488180883864338,
+      "precision": 0.5493827160493827,
+      "recall": 0.9981308411214953,
+      "f1": 0.7086927670869276,
+      "kappa": -0.002055030719894102,
+      "roc_auc": 0.8216702940297871,
+      "confusion_matrix": [
+        [
+          0,
+          438
+        ],
+        [
+          1,
+          534
+        ]
+      ],
+      "classification_report": "              precision    recall  f1-score   support\n\n           0       0.00      0.00      0.00       438\n           1       0.55      1.00      0.71       535\n\n    accuracy                           0.55       973\n   macro avg       0.27      0.50      0.35       973\nweighted avg       0.30      0.55      0.39       973\n"
+    }
+  ]
+}

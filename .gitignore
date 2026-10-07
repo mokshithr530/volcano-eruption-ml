@@ -1,5 +1,5 @@
-**.idea/
-**.ipynb_checkpoints/
-**__pycache__/
-**/.DS_Store
-**/._.DS_Store
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.codex-finalizer/
