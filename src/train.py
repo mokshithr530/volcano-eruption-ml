@@ -15,7 +15,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (accuracy_score, classification_report,
-                             cohen_kappa_score, confusion_matrix, f1_score,
+                             balanced_accuracy_score, cohen_kappa_score, confusion_matrix, f1_score,
                              precision_score, recall_score, roc_auc_score,
                              roc_curve)
 from sklearn.pipeline import make_pipeline
@@ -98,12 +98,22 @@ def make_features(eq: pd.DataFrame, intervals) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def evaluate(name, model, x_train, y_train, x_test, y_test):
+def choose_threshold(y_true, probabilities):
+    """Choose a threshold on development data without looking at the test set."""
+    candidates = np.linspace(0.05, 0.95, 181)
+    scores = [(balanced_accuracy_score(y_true, probabilities >= t),
+               f1_score(y_true, probabilities >= t, zero_division=0), t)
+              for t in candidates]
+    return max(scores)[2]
+
+
+def evaluate(name, model, x_train, y_train, x_test, y_test, threshold=0.5):
     model.fit(x_train, y_train)
-    pred = model.predict(x_test)
     prob = model.predict_proba(x_test)[:, 1] if hasattr(model, "predict_proba") else pred
+    pred = (prob >= threshold).astype(int)
     metrics = {
         "model": name,
+        "threshold": float(threshold),
         "accuracy": float(accuracy_score(y_test, pred)),
         "precision": float(precision_score(y_test, pred, zero_division=0)),
         "recall": float(recall_score(y_test, pred, zero_division=0)),
@@ -132,8 +142,10 @@ def main():
     cutoff_train = features["timestamp"].quantile(0.70)
     cutoff_dev = features["timestamp"].quantile(0.85)
     train = features[features.timestamp <= cutoff_train]
+    dev = features[(features.timestamp > cutoff_train) & (features.timestamp <= cutoff_dev)]
     test = features[features.timestamp > cutoff_dev]
     x_train, y_train = train[feature_cols], train["erupting"]
+    x_dev, y_dev = dev[feature_cols], dev["erupting"]
     x_test, y_test = test[feature_cols], test["erupting"]
 
     models = {
@@ -144,15 +156,27 @@ def main():
             n_estimators=300, max_depth=15, min_samples_leaf=3,
             class_weight="balanced", random_state=42, n_jobs=-1)),
     }
-    all_metrics, probabilities = [], {}
+    all_metrics, probabilities, fitted_models = [], {}, {}
     for name, model in models.items():
-        _, metrics, prob = evaluate(name, model, x_train, y_train, x_test, y_test)
+        model.fit(x_train, y_train)
+        dev_prob = model.predict_proba(x_dev)[:, 1] if hasattr(model, "predict_proba") else model.predict(x_dev)
+        threshold = choose_threshold(y_dev, dev_prob) if name != "majority_baseline" else 0.5
+        _, metrics, prob = evaluate(name, model, x_train, y_train, x_test, y_test, threshold)
         all_metrics.append(metrics)
         probabilities[name] = prob
+        fitted_models[name] = model
+    rf = fitted_models["random_forest"].named_steps["randomforestclassifier"]
+    importances = pd.DataFrame({"feature": feature_cols, "importance": rf.feature_importances_}).sort_values("importance", ascending=False)
+    importances.to_csv(OUT / "feature_importance.csv", index=False)
+    plt.figure(figsize=(7, 4))
+    top = importances.head(8).sort_values("importance")
+    plt.barh(top["feature"], top["importance"], color="#DD6C27")
+    plt.xlabel("Mean decrease in impurity"); plt.title("Random Forest feature importance")
+    plt.tight_layout(); plt.savefig(OUT / "feature_importance.png", dpi=180); plt.close()
     (OUT / "metrics.json").write_text(json.dumps({
         "dataset": {"rows": int(len(features)), "positive_rate": float(features.erupting.mean()),
                     "train_rows": int(len(train)), "test_rows": int(len(test)),
-                    "train_end": str(cutoff_train), "development_end": str(cutoff_dev)},
+                    "dev_rows": int(len(dev)), "train_end": str(cutoff_train), "development_end": str(cutoff_dev)},
         "features": feature_cols, "models": all_metrics
     }, indent=2))
 

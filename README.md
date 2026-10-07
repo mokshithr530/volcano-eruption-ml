@@ -8,9 +8,9 @@ This project studies whether earthquake-catalog features can identify whether KÄ
 
 ```text
 data/raw/                 Source earthquake catalog and eruption chronology
-src/train.py              Feature engineering, training, evaluation, plots
+src/train.py              Feature engineering, training, threshold tuning, evaluation, plots
 src/make_artifacts.py     Two-page report and review presentation generator
-outputs/                  Reproducible metrics, engineered features, figures
+outputs/                  Reproducible metrics, engineered features, figures, feature importance
 report/                   Final PDF write-up
 slides/                   Final presentation
 ```
@@ -25,11 +25,11 @@ python src/train.py
 python src/make_artifacts.py
 ```
 
-The pipeline uses a chronological split: 70% training, 15% development, and 15% held-out test data. It prevents future earthquake records from entering the feature history of earlier observations. The target is `erupting = 1` when an earthquake timestamp falls inside a dated Pu'u 'O'o eruption interval and `0` otherwise.
+The pipeline uses a chronological split: 70% training, 15% development, and 15% held-out test data. It prevents future earthquake records from entering the feature history of earlier observations. The target is `erupting = 1` when an earthquake timestamp falls inside a dated Pu'u 'O'o eruption interval and `0` otherwise. The development split selects the classification threshold before test evaluation.
 
 ## Models and evaluation
 
-The project compares a majority baseline, balanced Logistic Regression, and balanced Random Forest. Features include earthquake location, depth, magnitude, distance from the vent, and earthquake count/maximum magnitude in the preceding 1, 7, and 30 days. Because the target is time-dependent and the data distribution changes across the four-year catalog, the report emphasizes ROC-AUC, F1, recall, precision, and Cohen's kappa rather than accuracy alone.
+The project compares a majority baseline, balanced Logistic Regression, and balanced Random Forest. Features include earthquake location, depth, magnitude, distance from the vent, and earthquake count/maximum magnitude in the preceding 1, 7, and 30 days. The pipeline also writes `feature_importance.csv` and `feature_importance.png`. Because the target is time-dependent and the data distribution changes across the four-year catalog, the report emphasizes ROC-AUC, F1, recall, precision, and Cohen's kappa rather than accuracy alone.
 
 ## Data provenance
 
