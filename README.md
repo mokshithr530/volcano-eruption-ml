@@ -1,44 +1,110 @@
-# Predicting Eruptive Events at Volcanoes from Earthquake Data
+# Predicting Eruptive Events from Earthquake Data
 
-Mini-project for UE24CS352A Machine Learning, Section E.
+**Kilauea Pu'u 'O'o eruption-status classification**
+UE24CS352A Machine Learning Mini-Project, Section E
 
-Team: Muhammad Uzair (PES2UG24CS287) and Mokshithreddy Nallaballe (PES2UG24CS284).
+**Authors:** Muhammad Uzair, Mokshithreddy Nallaballe
 
-Private GitHub repository: https://github.com/mokshithr530/volcano-eruption-ml
+---
 
-This project studies whether earthquake-catalog features can identify whether Kīlauea's Pu'u 'O'o system was erupting when an earthquake occurred. It uses the public earthquake catalog and eruption chronology distributed with the reference project.
+## Overview
 
-## Project structure
+This project asks a focused question:
 
-```text
-data/raw/                 Source earthquake catalog and eruption chronology
-src/train.py              Feature engineering, training, threshold tuning, evaluation, plots
-src/make_artifacts.py     Two-page report and review presentation generator
-outputs/                  Reproducible metrics, engineered features, figures, feature importance
-report/                   Final PDF write-up
-slides/                   Final presentation
-```
+> Can earthquake-catalog features identify whether Kilauea was erupting when an earthquake occurred?
 
-## Setup and run
+We train classifiers on a historical earthquake catalog and test, on a later held-out period, how well they separate earthquakes that happened **during an eruption** from those that happened **during repose**.
 
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python src/train.py
-python src/make_artifacts.py
-```
+**Scope.** This is a retrospective, educational model. It detects a *signal* in the catalog; it does **not** forecast eruptions days in advance and must not be used as an operational warning system.
 
-The pipeline uses a chronological split: 70% training, 15% development, and 15% held-out test data. It prevents future earthquake records from entering the feature history of earlier observations. The target is `erupting = 1` when an earthquake timestamp falls inside a dated Pu'u 'O'o eruption interval and `0` otherwise. The development split selects the classification threshold before test evaluation.
+## Dataset
 
-## Models and evaluation
+| Item | Value |
+|---|---|
+| Records | 6,485 earthquakes |
+| Period | 1983-1986 |
+| Documented eruption intervals | 49 |
+| Positive rate (engineered data) | 68.9% |
 
-The project compares a majority baseline, balanced Logistic Regression, and balanced Random Forest. Features include earthquake location, depth, magnitude, distance from the vent, and earthquake count/maximum magnitude in the preceding 1, 7, and 30 days. The pipeline also writes `feature_importance.csv` and `feature_importance.png`. Because the target is time-dependent and the data distribution changes across the four-year catalog, the report emphasizes ROC-AUC, F1, recall, precision, and Cohen's kappa rather than accuracy alone.
+<!-- TODO: add the data source / citation and the file path of the raw catalog and eruption-interval table. -->
 
-## Data provenance
+**Labels**
 
-The raw files originate from the public repository `bmullet/PEEVED`, which accompanies the supplied 2019 CS229 report. The earthquake catalog is attributed there to ANSS/WOVOdat, and the eruption chronology cites the Hawaii Center for Volcanology. This project keeps the raw files unchanged and records the transformation in `src/train.py`.
+- `1` - the earthquake falls inside a documented eruption interval
+- `0` - the earthquake occurs during repose
+
+## Method
+
+1. **Labeling:** match each earthquake timestamp against the 49 eruption intervals.
+2. **Feature engineering**
+   - *Event features:* latitude, longitude, depth, magnitude, distance from the vent.
+   - *History features:* earthquake count and maximum magnitude over the previous 1, 7 and 30 days.
+   - The current earthquake is **excluded** from its own rolling-history window to prevent direct leakage.
+3. **Chronological split:** 70% train / 15% development / 15% held-out test, in time order. A random split would leak information between neighbouring-in-time earthquakes.
+4. **Models:** Majority baseline, Logistic Regression, Random Forest.
+5. **Thresholds** are selected on the development set only, then applied once to the held-out test set (Random Forest: 0.75).
+
+## Results (held-out test set)
+
+| Model | Accuracy | F1 | Kappa | ROC-AUC |
+|---|---|---|---|---|
+| Majority Baseline | 0.550 | 0.710 | 0.000 | 0.500 |
+| Logistic Regression | 0.475 | 0.086 | 0.041 | **0.961** |
+| Random Forest | **0.636** | 0.541 | **0.308** | 0.822 |
+
+**How to read this**
+
+- Logistic Regression ranks eruptive events best (ROC-AUC 0.961), but its accuracy and F1 at the chosen cutoff are poor. Ranking quality and a good cutoff are different things.
+- Random Forest, with its threshold tuned on development data, is the most balanced model on the held-out period (best accuracy and kappa).
+- The test period is 55% eruptive (the majority baseline's accuracy), versus 68.9% overall, so accuracy alone is misleading.
 
 ## Limitations
 
-This is an educational retrospective model, not an operational eruption warning system. It uses catalog events rather than continuous waveform, deformation, gas, or tremor data. The supplied labels describe contemporaneous eruption status, which is different from forecasting an eruption several days in advance. Results should therefore be interpreted as evidence of signal in the catalog, not as a deployable warning capability.
+- **Retrospective:** classifies status at the time of the quake; no forecasting.
+- **Few independent intervals:** only 49 eruption intervals, and quakes within one interval are correlated.
+- **Threshold sensitivity:** accuracy and F1 shift noticeably with the decision cutoff.
+- **Single volcano, single era:** Kilauea, 1983-1986; not tested elsewhere.
+
+## Future work
+
+- Calibrate thresholds on a dedicated development period.
+- Use blocked / event-based validation.
+- Add waveform, tremor, GPS and gas-emission features.
+
+## Repository structure
+
+<!-- TODO: replace with the real tree. Run `tree -L 2` (or `git ls-files`) in the repo and paste it here, with one line per file saying what it does. -->
+
+```
+volcano-eruption-ml/
+├── README.md
+├── requirements.txt        # TODO: confirm
+├── data/                   # TODO: raw + engineered data
+├── notebooks/ or src/      # TODO: preprocessing, features, training, evaluation
+└── results/                # TODO: metrics tables, figures
+```
+
+## Getting started
+
+```bash
+git clone https://github.com/mokshithr530/volcano-eruption-ml.git
+cd volcano-eruption-ml
+python -m venv venv
+source venv/bin/activate        # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+<!-- TODO: add the exact command or notebook order that reproduces the results table above. -->
+
+## Team
+
+| Name | Contribution |
+|---|---|
+| Muhammad Uzair | Data, labels, feature engineering, validation split |
+| Mokshithreddy Nallaballe | Models, evaluation, results analysis, limitations |
+
+<!-- TODO: edit the table to match who actually did what. -->
+
+## License
+
+<!-- TODO: add a license (for a course project, MIT is common) or remove this section. -->
